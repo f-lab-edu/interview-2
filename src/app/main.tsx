@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@/index.css'
 import { RouterProvider } from 'react-router-dom'
+import Layout from '@/app/layout.tsx'
 
 // MSW 설정 (개발 환경에서만)
 async function enableMocking() {
@@ -18,7 +19,9 @@ enableMocking().then(async () => {
 
   createRoot(document.getElementById('root')!).render(
     <StrictMode>
-      <RouterProvider router={router} />
+      <Layout>
+        <RouterProvider router={router} />
+      </Layout>
     </StrictMode>
   )
 })
