@@ -11,7 +11,7 @@ export const ConfirmButton = ({
 }: ConfirmButtonProps) => {
   return (
     <button
-      className='bg-neutral-900 cursor-pointer w-full text-white py-3 px-6 rounded-lg hover:bg-neutral-800 transition-colors'
+      className='bg-neutral-900 cursor-pointer w-full text-white py-3 px-6 rounded-lg hover:bg-neutral-800 transition-colors disabled:bg-gray-300 disabled:cursor-default'
       onClick={onClick}
       {...props}
     >
