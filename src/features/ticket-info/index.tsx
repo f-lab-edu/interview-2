@@ -3,7 +3,7 @@ import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import type { CommonResponse } from '@/lib/http'
 import { currencyFormat } from '@/util'
 import type { Ticket, TokenResponse } from '@/types/ticket'
-import { PreviousButton } from '@/features/common/components'
+import { ConfirmButton, PreviousButton } from '@/features/common/components'
 import { useToken } from '@/features/common/hooks'
 import { useCreateToken } from '@/features/ticket-info/hooks'
 
@@ -37,8 +37,8 @@ const TicketInfo = () => {
             <p>{`전석 ${currencyFormat(ticketInfo.price, '원')}`}</p>
           </div>
 
-          <button
-            className='bg-neutral-900 cursor-pointer w-full text-white py-3 px-6 rounded-lg hover:bg-neutral-800 transition-colors'
+          <ConfirmButton
+            disabled={isLoading}
             onClick={async () => {
               const response = await asyncMutate(ticketId!)
               if (response.success) {
@@ -49,13 +49,11 @@ const TicketInfo = () => {
                 setToken(tokenId)
 
                 if (res.data.hasQueue) return navigate(`queue`)
-                return navigate(`book`)
+                return navigate(`seat`)
               }
             }}
-            disabled={isLoading}
-          >
-            예약
-          </button>
+            buttonText='예약'
+          />
         </div>
       </div>
     </div>

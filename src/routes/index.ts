@@ -1,3 +1,5 @@
+import SeatReservation from '@/features/seat-reservation'
+import { getSeatList } from '@/features/seat-reservation/api'
 import TicketInfo from '@/features/ticket-info'
 import { getTicketInfo } from '@/features/ticket-info/api'
 import TicketList from '@/features/ticket-list'
@@ -16,6 +18,11 @@ export const createAppRouter = () => {
       path: 'ticket/:id',
       Component: TicketInfo,
       loader: async ({ params }) => await getTicketInfo(params.id!)
+    },
+    {
+      path: 'ticket/:id/seat',
+      Component: SeatReservation,
+      loader: async ({ params }) => await getSeatList(params.id!)
     }
   ])
 }
