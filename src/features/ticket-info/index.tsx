@@ -1,11 +1,18 @@
-import { useLoaderData } from 'react-router-dom'
-import type { Ticket } from '@/types/ticket'
+import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 
+import type { CommonResponse } from '@/lib/http'
 import { currencyFormat } from '@/util'
+import type { Ticket, TokenResponse } from '@/types/ticket'
 import { PreviousButton } from '@/features/common/components'
+import { useToken } from '@/features/common/hooks'
+import { useCreateToken } from '@/features/ticket-info/hooks'
 
 const TicketInfo = () => {
+  const { id: ticketId } = useParams()
   const ticketInfo = useLoaderData<Ticket>()
+  const { setToken } = useToken()
+  const navigate = useNavigate()
+  const { asyncMutate, isLoading } = useCreateToken()
 
   return (
     <div className='max-w-4xl mx-auto md:px-6'>
@@ -30,7 +37,23 @@ const TicketInfo = () => {
             <p>{`전석 ${currencyFormat(ticketInfo.price, '원')}`}</p>
           </div>
 
-          <button className='bg-neutral-900 cursor-pointer w-full text-white py-3 px-6 rounded-lg hover:bg-neutral-800 transition-colors'>
+          <button
+            className='bg-neutral-900 cursor-pointer w-full text-white py-3 px-6 rounded-lg hover:bg-neutral-800 transition-colors'
+            onClick={async () => {
+              const response = await asyncMutate(ticketId!)
+              if (response.success) {
+                const res = response as CommonResponse<TokenResponse>
+                const {
+                  data: { tokenId }
+                } = res
+                setToken(tokenId)
+
+                if (res.data.hasQueue) return navigate(`queue`)
+                return navigate(`book`)
+              }
+            }}
+            disabled={isLoading}
+          >
             예약
           </button>
         </div>
