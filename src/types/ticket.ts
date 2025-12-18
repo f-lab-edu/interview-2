@@ -45,3 +45,8 @@ export interface QueueStatus {
   progress: number;
   estimatedWaitTime: number;
 }
+
+export interface TokenResponse extends Pick<QueueToken, "expiresAt"> {
+  tokenId: string;
+  hasQueue: boolean;
+}
