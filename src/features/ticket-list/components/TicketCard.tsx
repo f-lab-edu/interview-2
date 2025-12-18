@@ -1,4 +1,5 @@
 import type { Ticket } from '@/types/ticket'
+import { currencyFormat } from '@/util'
 
 interface TicketCardProps extends Ticket {
   onClick: () => void
@@ -18,13 +19,10 @@ export const TicketCard = ({ onClick, ...ticket }: TicketCardProps) => {
       </div>
       <div className='p-4 text-start flex flex-col gap-1'>
         <p className='text-XL-Medium'>{ticket.title}</p>
-        <p className='text-M-Regular'>{ticket.eventDate}</p>
-        <p className='text-M-Regular'>{ticket.venue}</p>
+        <p>{ticket.eventDate}</p>
+        <p>{ticket.venue}</p>
         <p className='text-M-Medium'>{currencyFormat(ticket.price, '원')}</p>
       </div>
     </button>
   )
 }
-
-const currencyFormat = (price: number, unit: string) =>
-  new Intl.NumberFormat().format(price) + ` ${unit}`
