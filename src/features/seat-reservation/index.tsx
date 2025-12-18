@@ -1,15 +1,31 @@
-import { useLoaderData } from 'react-router-dom'
-import { ConfirmButton, PreviousButton } from '@/features/common/components'
-import { Seat } from '@/features/seat-reservation/components'
-import { useCallback, useMemo, useState } from 'react'
-import type { Seat as SeatType } from '@/types/ticket'
-import type { CommonResponse } from '@/lib/http'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 import { currencyFormat } from '@/util'
+import { ConfirmButton, PreviousButton } from '@/features/common/components'
+
+import { useToken } from '@/features/common/hooks'
+import { Seat } from '@/features/seat-reservation/components'
+import { useApplyReservation } from '@/features/seat-reservation/hooks'
+import type { Seat as SeatType } from '@/types/ticket'
+import { HttpError, type CommonResponse } from '@/lib/http'
 
 const SeatReservation = () => {
+  const { id: ticketId } = useParams()
   const { data: seatList } = useLoaderData<CommonResponse<SeatType[]>>()
+  const navigate = useNavigate()
+  const { token } = useToken()
 
   const [selectedSeat, setSelectedSeat] = useState<SeatType | null>(null)
+  const { isLoading, asyncMutate } = useApplyReservation()
+
+  useEffect(() => {
+    if (token !== null) return
+    if (ticketId) {
+      navigate(`/ticket/${ticketId}`, { replace: true })
+      return
+    }
+    navigate('/', { replace: true })
+  }, [navigate, ticketId, token])
 
   const seatSections = useMemo(() => {
     const section: Record<string, SeatType[]> = {}
@@ -77,8 +93,26 @@ const SeatReservation = () => {
           )}
 
           <ConfirmButton
-            disabled={selectedSeat === null}
-            onClick={() => {}}
+            disabled={selectedSeat === null || isLoading || token === null}
+            onClick={async () => {
+              if (selectedSeat === null || token === null) return
+              try {
+                await asyncMutate(selectedSeat.id, token)
+                navigate('complete')
+                return
+              } catch (error) {
+                if (error instanceof HttpError) {
+                  if (error.status === 410) {
+                    navigate('/expired')
+                  }
+                  // if (error.status === 400) {
+                  //   // 토스트 메시지?
+                  // }
+                  return
+                }
+                console.error(error)
+              }
+            }}
             buttonText='좌석 선택'
           />
         </div>

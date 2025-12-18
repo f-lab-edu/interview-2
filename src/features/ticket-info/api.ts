@@ -1,9 +1,9 @@
 import { http } from '@/lib/http'
-import type { TokenResponse } from '@/types/ticket'
+import type { Ticket, TokenResponse } from '@/types/ticket'
 
 export const getTicketInfo = async (ticketId: string) => {
   try {
-    const { data } = await http.get(`/api/tickets/${ticketId}`)
+    const { data } = await http.get<Ticket>(`/api/tickets/${ticketId}`)
     return data
   } catch (error) {
     console.error(error)
