@@ -1,5 +1,5 @@
 import TicketInfo from '@/features/ticket-info'
-import { getTicketInfo } from '@/features/ticket-info/apt'
+import { getTicketInfo } from '@/features/ticket-info/api'
 import TicketList from '@/features/ticket-list'
 import { getTicketList } from '@/features/ticket-list/api'
 import { createBrowserRouter } from 'react-router-dom'
