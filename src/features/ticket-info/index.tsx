@@ -1,9 +1,14 @@
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 
 import type { CommonResponse } from '@/lib/http'
-import { currencyFormat } from '@/lib/utils'
 import type { Ticket, TokenResponse } from '@/types/ticket'
-import { ConfirmButton, PreviousButton } from '@/features/common/components'
+import { currencyFormat } from '@/lib/utils'
+
+import {
+  ConfirmButton,
+  PreviousButton,
+  ImageWithSkeleton
+} from '@/features/common/components'
 import { useToken } from '@/features/common/hooks'
 import { useCreateToken } from '@/features/ticket-info/hooks'
 
@@ -21,7 +26,11 @@ const TicketInfo = () => {
       </div>
       <div className='rounded-2xl border border-gray-300 overflow-hidden'>
         <div className='aspect-video bg-neutral-100'>
-          <img src={ticketInfo.image} className='w-full  h-full object-cover' />
+          <ImageWithSkeleton
+            src={ticketInfo.image}
+            aspectRatio='aspect-video'
+            className='w-full h-full object-cover'
+          />
         </div>
         <div className='p-5 flex flex-col gap-5'>
           <div className='flex flex-col gap-2'>
