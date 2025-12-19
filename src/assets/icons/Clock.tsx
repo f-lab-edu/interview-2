@@ -1,4 +1,7 @@
-export const Clock = () => {
+interface ClockProps {
+  textColor?: string
+}
+export const Clock = ({ textColor }: ClockProps) => {
   return (
     <svg
       xmlns='http://www.w3.org/2000/svg'
@@ -10,7 +13,9 @@ export const Clock = () => {
       strokeWidth='2'
       strokeLinecap='round'
       strokeLinejoin='round'
-      className='lucide lucide-clock w-8 h-8 text-red-600'
+      className={`lucide lucide-clock w-8 h-8 ${
+        textColor ? textColor : 'text-red-600'
+      }`}
       aria-hidden='true'
     >
       <path d='M12 6v6l4 2'></path>
