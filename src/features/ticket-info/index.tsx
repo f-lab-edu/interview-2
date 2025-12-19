@@ -11,6 +11,7 @@ import {
 } from '@/features/common/components'
 import { useToken } from '@/features/common/hooks'
 import { useCreateToken } from '@/features/ticket-info/hooks'
+import { useCallback } from 'react'
 
 const TicketInfo = () => {
   const { id: ticketId } = useParams()
@@ -18,6 +19,36 @@ const TicketInfo = () => {
   const { setToken } = useToken()
   const navigate = useNavigate()
   const { asyncMutate, isLoading } = useCreateToken()
+
+  const handleConfirm = useCallback(async () => {
+    try {
+      if (!ticketId) {
+        navigate(
+          { pathname: '/error', search: '?type=emptytoken' },
+          { replace: true }
+        )
+        return
+      }
+      const { data } = await asyncMutate(ticketId)
+      const { tokenId, hasQueue } = data
+      setToken(tokenId)
+      if (hasQueue) return navigate(`queue`)
+      return navigate(`seat`)
+    } catch (error) {
+      if (error instanceof HttpError) {
+        if (error.status === 404)
+          navigate(
+            { pathname: '/error', search: '?type=invalidticket' },
+            { replace: true }
+          )
+        return
+      }
+      navigate(
+        { pathname: '/error', search: '?type=unexpected' },
+        { replace: true }
+      )
+    }
+  }, [asyncMutate, setToken, navigate, ticketId])
 
   return (
     <div className='max-w-4xl mx-auto md:px-6'>
@@ -48,35 +79,7 @@ const TicketInfo = () => {
 
           <ConfirmButton
             disabled={isLoading}
-            onClick={async () => {
-              try {
-                if (!ticketId) {
-                  navigate(
-                    { pathname: '/error', search: '?type=emptytoken' },
-                    { replace: true }
-                  )
-                  return
-                }
-                const { data } = await asyncMutate(ticketId)
-                const { tokenId, hasQueue } = data
-                setToken(tokenId)
-                if (hasQueue) return navigate(`queue`)
-                return navigate(`seat`)
-              } catch (error) {
-                if (error instanceof HttpError) {
-                  if (error.status === 404)
-                    navigate(
-                      { pathname: '/error', search: '?type=invalidticket' },
-                      { replace: true }
-                    )
-                  return
-                }
-                navigate(
-                  { pathname: '/error', search: '?type=unexpected' },
-                  { replace: true }
-                )
-              }
-            }}
+            onClick={handleConfirm}
             buttonText='예약'
           />
         </div>
