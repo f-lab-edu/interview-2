@@ -28,8 +28,8 @@ export const useGetQueueStatus = ({
   })
 
   useInterval(
-    () => {
-      getQueueStatus()
+    async () => {
+      await getQueueStatus()
     },
     isError === false &&
       (queueInfo === null || queueInfo?.token.status === 'waiting')
@@ -70,7 +70,6 @@ export const useGetQueueStatus = ({
     } catch (error) {
       setIsError(true)
       if (error instanceof HttpError) {
-        console.log(error, 'error')
         if (error.status === 404) errorCallback()
         throw error.data
       }

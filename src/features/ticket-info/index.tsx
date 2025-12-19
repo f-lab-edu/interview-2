@@ -1,8 +1,8 @@
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 
-import type { CommonResponse } from '@/lib/http'
-import type { Ticket, TokenResponse } from '@/types/ticket'
-import { currencyFormat } from '@/lib/utils'
+import { HttpError } from '@/lib/http'
+import type { Ticket } from '@/types/ticket'
+import { buildErrorSearch, currencyFormat } from '@/lib/utils'
 
 import {
   ConfirmButton,
@@ -11,6 +11,7 @@ import {
 } from '@/features/common/components'
 import { useToken } from '@/features/common/hooks'
 import { useCreateToken } from '@/features/ticket-info/hooks'
+import { useCallback } from 'react'
 
 const TicketInfo = () => {
   const { id: ticketId } = useParams()
@@ -18,6 +19,36 @@ const TicketInfo = () => {
   const { setToken } = useToken()
   const navigate = useNavigate()
   const { asyncMutate, isLoading } = useCreateToken()
+
+  const handleConfirm = useCallback(async () => {
+    try {
+      if (!ticketId) {
+        navigate(
+          { pathname: '/error', search: buildErrorSearch('emptytoken') },
+          { replace: true }
+        )
+        return
+      }
+      const { data } = await asyncMutate(ticketId)
+      const { tokenId, hasQueue } = data
+      setToken(tokenId)
+      if (hasQueue) return navigate(`queue`)
+      return navigate(`seat`)
+    } catch (error) {
+      if (error instanceof HttpError) {
+        if (error.status === 404)
+          navigate(
+            { pathname: '/error', search: buildErrorSearch('invalidticket') },
+            { replace: true }
+          )
+        return
+      }
+      navigate(
+        { pathname: '/error', search: buildErrorSearch('unexpected') },
+        { replace: true }
+      )
+    }
+  }, [asyncMutate, setToken, navigate, ticketId])
 
   return (
     <div className='max-w-4xl mx-auto md:px-6'>
@@ -48,19 +79,7 @@ const TicketInfo = () => {
 
           <ConfirmButton
             disabled={isLoading}
-            onClick={async () => {
-              const response = await asyncMutate(ticketId!)
-              if (response.success) {
-                const res = response as CommonResponse<TokenResponse>
-                const {
-                  data: { tokenId }
-                } = res
-                setToken(tokenId)
-
-                if (res.data.hasQueue) return navigate(`queue`)
-                return navigate(`seat`)
-              }
-            }}
+            onClick={handleConfirm}
             buttonText='예약'
           />
         </div>

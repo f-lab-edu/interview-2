@@ -1,14 +1,15 @@
 import { Clock } from '@/assets/icons'
 import { HttpError, type ErrorResponse } from '@/lib/http'
 import { useNavigate, useRouteError, useSearchParams } from 'react-router-dom'
-
-type ErrorType = 'token' | 'notfound' | 'unexpected' | 'badrequest'
+import type { ErrorType } from '@/features/error/type'
 
 const normalizeErrorType = (type: string | null): ErrorType | null => {
   if (type === 'token') return 'token'
   if (type === 'notfound') return 'notfound'
   if (type === 'badrequest') return 'badrequest'
   if (type === 'unexpected') return 'unexpected'
+  if (type === 'invalidticket') return 'invalidticket'
+  if (type === 'emptytoken') return 'emptytoken'
   return null
 }
 
@@ -29,6 +30,10 @@ const getDefaultMessage = (type: ErrorType) => {
       return '요청을 처리할 수 없습니다.'
     case 'unexpected':
       return '예상치 못한 오류가 발생했습니다.'
+    case 'invalidticket':
+      return '티켓을 찾을 수 없습니다.'
+    case 'emptytoken':
+      return '토큰을 찾을 수 없습니다.'
   }
 }
 

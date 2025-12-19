@@ -1,6 +1,9 @@
 import { useEffect, useRef } from 'react'
 
-export const useInterval = (callback: () => void, delay: number | null) => {
+export const useInterval = (
+  callback: () => void | Promise<void>,
+  delay: number | null
+) => {
   const savedCallback = useRef<() => void>(null)
 
   // 최신 callback 유지
