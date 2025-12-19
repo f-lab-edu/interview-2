@@ -55,3 +55,9 @@ export interface TokenQueueStatus {
   token: QueueToken
   queueStatus: QueueStatus
 }
+
+export interface BookingTicketInfo {
+  reservation: Reservation
+  seat: Seat
+  ticket: Ticket
+}
