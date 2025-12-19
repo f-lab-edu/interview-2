@@ -1,10 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
+import {
+  useLoaderData,
+  useLocation,
+  useNavigate,
+  useParams
+} from 'react-router-dom'
 import { currencyFormat } from '@/util'
 import { ConfirmButton, PreviousButton } from '@/features/common/components'
 
 import { useToken } from '@/features/common/hooks'
-import { Seat } from '@/features/seat-reservation/components'
+import { ExpiredTime, Seat } from '@/features/seat-reservation/components'
 import { useApplyReservation } from '@/features/seat-reservation/hooks'
 import type { Seat as SeatType } from '@/types/ticket'
 import { HttpError, type CommonResponse } from '@/lib/http'
@@ -13,6 +18,7 @@ const SeatReservation = () => {
   const { id: ticketId } = useParams()
   const { data: seatList } = useLoaderData<CommonResponse<SeatType[]>>()
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const { token } = useToken()
 
   const [selectedSeat, setSelectedSeat] = useState<SeatType | null>(null)
@@ -41,10 +47,20 @@ const SeatReservation = () => {
     (seat: SeatType) => setSelectedSeat(seat),
     []
   )
+
+  const timeOutCallback = useCallback(
+    () =>
+      navigate(
+        { pathname: '/error', search: '?type=token' },
+        { replace: true }
+      ),
+    [navigate]
+  )
   return (
     <div className='max-w-4xl mx-auto md:px-6'>
-      <div className='h-30 flex justify-start items-center'>
+      <div className='h-30 flex justify-between items-center'>
         <PreviousButton />
+        <ExpiredTime onTime={timeOutCallback} />
       </div>
       <div className='rounded-2xl border border-gray-300 overflow-hidden'>
         <div className='p-5 flex flex-col gap-3'>
@@ -97,13 +113,15 @@ const SeatReservation = () => {
             onClick={async () => {
               if (selectedSeat === null || token === null) return
               try {
-                await asyncMutate(selectedSeat.id, token)
-                navigate('complete')
+                const response = await asyncMutate(selectedSeat.id, token)
+                navigate(pathname.replace('seat', response.id), {
+                  replace: true
+                })
                 return
               } catch (error) {
                 if (error instanceof HttpError) {
                   if (error.status === 410) {
-                    navigate({ pathname: '/error', search: '?type=token' })
+                    timeOutCallback()
                   }
                   // if (error.status === 400) {
                   //   // 토스트 메시지?
