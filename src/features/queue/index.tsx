@@ -16,12 +16,12 @@ const Queue = () => {
       navigate(pathname.replace('queue', 'seat'), { replace: true }),
     failedCallback: () =>
       navigate(
-        { pathname: '/expired', search: '?type=token' },
+        { pathname: '/error', search: '?type=token' },
         { replace: true }
       ),
     errorCallback: () =>
       navigate(
-        { pathname: '/expired', search: '?type=unexpected' },
+        { pathname: '/error', search: '?type=unexpected' },
         { replace: true }
       )
   })

@@ -1,8 +1,10 @@
 import { Clock } from '@/assets/icons'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
-const ExpiredToken = () => {
+const ErrorPage = () => {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const type = searchParams.get('type')
   return (
     <div className='max-w-xl mx-auto md:px-6'>
       <div className='h-30' />
@@ -11,7 +13,11 @@ const ExpiredToken = () => {
           <Clock />
         </div>
         <div>
-          <p className=''>토큰이 만료되었습니다.</p>
+          <p className=''>
+            {type === null
+              ? '토큰이 만료되었습니다.'
+              : '유효하지 않은 토큰입니다.'}
+          </p>
           <p className='pt-1'>다시 시도해주세요.</p>
         </div>
         <button
@@ -25,4 +31,4 @@ const ExpiredToken = () => {
   )
 }
 
-export default ExpiredToken
+export default ErrorPage
