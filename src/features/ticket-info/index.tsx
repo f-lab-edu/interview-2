@@ -1,7 +1,7 @@
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 
-import type { CommonResponse } from '@/lib/http'
-import type { Ticket, TokenResponse } from '@/types/ticket'
+import { HttpError } from '@/lib/http'
+import type { Ticket } from '@/types/ticket'
 import { currencyFormat } from '@/lib/utils'
 
 import {
@@ -49,16 +49,32 @@ const TicketInfo = () => {
           <ConfirmButton
             disabled={isLoading}
             onClick={async () => {
-              const response = await asyncMutate(ticketId!)
-              if (response.success) {
-                const res = response as CommonResponse<TokenResponse>
-                const {
-                  data: { tokenId }
-                } = res
+              try {
+                if (!ticketId) {
+                  navigate(
+                    { pathname: '/error', search: '?type=emptytoken' },
+                    { replace: true }
+                  )
+                  return
+                }
+                const { data } = await asyncMutate(ticketId)
+                const { tokenId, hasQueue } = data
                 setToken(tokenId)
-
-                if (res.data.hasQueue) return navigate(`queue`)
+                if (hasQueue) return navigate(`queue`)
                 return navigate(`seat`)
+              } catch (error) {
+                if (error instanceof HttpError) {
+                  if (error.status === 404)
+                    navigate(
+                      { pathname: '/error', search: '?type=invalidticket' },
+                      { replace: true }
+                    )
+                  return
+                }
+                navigate(
+                  { pathname: '/error', search: '?type=unexpected' },
+                  { replace: true }
+                )
               }
             }}
             buttonText='예약'
