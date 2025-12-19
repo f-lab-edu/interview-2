@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Clock } from '@/assets/icons'
 import { useToken } from '@/features/common/hooks'
 import { useGetQueueStatus } from '@/features/queue/hooks'
-import { msToMin } from '@/util'
+import { msToMin } from '@/lib/utils'
 import { ProgressBar } from '@/features/queue/components'
 
 const Queue = () => {

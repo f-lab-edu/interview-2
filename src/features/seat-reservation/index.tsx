@@ -5,7 +5,7 @@ import {
   useNavigate,
   useParams
 } from 'react-router-dom'
-import { currencyFormat } from '@/util'
+import { currencyFormat } from '@/lib/utils'
 import { ConfirmButton, PreviousButton } from '@/features/common/components'
 
 import { useToken } from '@/features/common/hooks'
