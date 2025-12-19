@@ -1,7 +1,7 @@
 import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 
 import type { CommonResponse } from '@/lib/http'
-import { currencyFormat } from '@/util'
+import { currencyFormat } from '@/lib/utils'
 import type { Ticket, TokenResponse } from '@/types/ticket'
 import { ConfirmButton, PreviousButton } from '@/features/common/components'
 import { useToken } from '@/features/common/hooks'

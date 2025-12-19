@@ -1,5 +1,5 @@
 import type { Ticket } from '@/types/ticket'
-import { currencyFormat } from '@/util'
+import { currencyFormat } from '@/lib/utils'
 
 interface TicketCardProps extends Ticket {
   onClick: () => void

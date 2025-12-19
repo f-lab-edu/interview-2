@@ -1,6 +1,6 @@
 import { CheckCircle } from '@/assets/icons'
 import type { BookingTicketInfo } from '@/types/ticket'
-import { currencyFormat } from '@/util'
+import { currencyFormat } from '@/lib/utils'
 import { useLoaderData, useNavigate } from 'react-router-dom'
 import { PrintInfo } from '@/features/reservation-complete/components'
 
