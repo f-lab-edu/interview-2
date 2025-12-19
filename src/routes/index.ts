@@ -1,4 +1,5 @@
-import ExpiredToken from '@/features/expired'
+import ErrorPage from '@/features/error'
+import Queue from '@/features/queue'
 import SeatReservation from '@/features/seat-reservation'
 import { getSeatList } from '@/features/seat-reservation/api'
 import TicketInfo from '@/features/ticket-info'
@@ -26,8 +27,12 @@ export const createAppRouter = () => {
       loader: async ({ params }) => await getSeatList(params.id!)
     },
     {
-      path: '/expired',
-      Component: ExpiredToken
+      path: '/error',
+      Component: ErrorPage
+    },
+    {
+      path: 'ticket/:id/queue',
+      Component: Queue
     }
   ])
 }

@@ -103,7 +103,7 @@ const SeatReservation = () => {
               } catch (error) {
                 if (error instanceof HttpError) {
                   if (error.status === 410) {
-                    navigate('/expired')
+                    navigate({ pathname: '/error', search: '?type=token' })
                   }
                   // if (error.status === 400) {
                   //   // 토스트 메시지?
