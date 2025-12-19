@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Clock } from '@/assets/icons'
 import { useToken } from '@/features/common/hooks'
 import { useGetQueueStatus } from '@/features/queue/hooks'
-import { msToMin } from '@/lib/utils'
+import { msToMin, buildErrorSearch } from '@/lib/utils'
 import { ProgressBar } from '@/features/queue/components'
 
 const Queue = () => {
@@ -16,12 +16,12 @@ const Queue = () => {
       navigate(pathname.replace('queue', 'seat'), { replace: true }),
     failedCallback: () =>
       navigate(
-        { pathname: '/error', search: '?type=token' },
+        { pathname: '/error', search: buildErrorSearch('token') },
         { replace: true }
       ),
     errorCallback: () =>
       navigate(
-        { pathname: '/error', search: '?type=unexpected' },
+        { pathname: '/error', search: buildErrorSearch('unexpected') },
         { replace: true }
       )
   })

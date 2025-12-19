@@ -2,7 +2,7 @@ import { useLoaderData, useNavigate, useParams } from 'react-router-dom'
 
 import { HttpError } from '@/lib/http'
 import type { Ticket } from '@/types/ticket'
-import { currencyFormat } from '@/lib/utils'
+import { buildErrorSearch, currencyFormat } from '@/lib/utils'
 
 import {
   ConfirmButton,
@@ -24,7 +24,7 @@ const TicketInfo = () => {
     try {
       if (!ticketId) {
         navigate(
-          { pathname: '/error', search: '?type=emptytoken' },
+          { pathname: '/error', search: buildErrorSearch('emptytoken') },
           { replace: true }
         )
         return
@@ -38,13 +38,13 @@ const TicketInfo = () => {
       if (error instanceof HttpError) {
         if (error.status === 404)
           navigate(
-            { pathname: '/error', search: '?type=invalidticket' },
+            { pathname: '/error', search: buildErrorSearch('invalidticket') },
             { replace: true }
           )
         return
       }
       navigate(
-        { pathname: '/error', search: '?type=unexpected' },
+        { pathname: '/error', search: buildErrorSearch('unexpected') },
         { replace: true }
       )
     }

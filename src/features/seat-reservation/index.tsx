@@ -5,7 +5,7 @@ import {
   useNavigate,
   useParams
 } from 'react-router-dom'
-import { currencyFormat } from '@/lib/utils'
+import { buildErrorSearch, currencyFormat } from '@/lib/utils'
 import { ConfirmButton, PreviousButton } from '@/features/common/components'
 
 import { useToken } from '@/features/common/hooks'
@@ -56,7 +56,7 @@ const SeatReservation = () => {
   const timeOutCallback = useCallback(
     () =>
       navigate(
-        { pathname: '/error', search: '?type=token' },
+        { pathname: '/error', search: buildErrorSearch('token') },
         { replace: true }
       ),
     [navigate]

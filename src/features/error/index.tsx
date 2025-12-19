@@ -1,14 +1,7 @@
 import { Clock } from '@/assets/icons'
 import { HttpError, type ErrorResponse } from '@/lib/http'
 import { useNavigate, useRouteError, useSearchParams } from 'react-router-dom'
-
-type ErrorType =
-  | 'token'
-  | 'notfound'
-  | 'unexpected'
-  | 'badrequest'
-  | 'invalidticket'
-  | 'emptytoken'
+import type { ErrorType } from '@/features/error/type'
 
 const normalizeErrorType = (type: string | null): ErrorType | null => {
   if (type === 'token') return 'token'
