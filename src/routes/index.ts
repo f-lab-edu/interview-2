@@ -1,4 +1,5 @@
 import ExpiredToken from '@/features/expired'
+import Queue from '@/features/queue'
 import SeatReservation from '@/features/seat-reservation'
 import { getSeatList } from '@/features/seat-reservation/api'
 import TicketInfo from '@/features/ticket-info'
@@ -28,6 +29,10 @@ export const createAppRouter = () => {
     {
       path: '/expired',
       Component: ExpiredToken
+    },
+    {
+      path: 'ticket/:id/queue',
+      Component: Queue
     }
   ])
 }
