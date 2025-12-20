@@ -1,69 +1,259 @@
-# React + TypeScript + Vite
+# 과제 설명
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+티켓팅 대기열 + 결제 플로우를 만드는 과제입니다. 사용자는 이벤트 티켓을 예매합니다. (24시간 이내 구현)
 
-Currently, two official plugins are available:
+## 필수 요구사항
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+티켓 목록 → 티켓 상세 → 대기열 (필요 시) → 좌석 선택 → 완료의 플로우로 구성됩니다.
 
-## Expanding the ESLint configuration
+## 티켓 목록 페이지
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 티켓 목록들을 출력합니다.
+- 티켓 항목을 클릭하면 해당 티켓 상세 페이지로 이동합니다.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 티켓 상세 페이지
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+- 티켓의 상세 이미지, 상세 설명, 좌석 가격 등을 출력합니다.
+- 입장 버튼이 존재하며, 이를 클릭하면
+  - 입장 토큰을 발급받습니다.
+  - 대기열이 있을 경우 대기열 입장 페이지로 이동합니다. 그렇지 않을 경우 바로 좌석 선택 페이지로 이동합니다.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## 대기열 페이지
+
+- 대기열 진행률(0–100%)을 보여줍니다.
+- 대기열이 해소되었을 경우 좌석 선택 페이지로 이동합니다.
+
+## 좌석 선택 페이지
+
+- 만약 발급된 입장 토큰을 조회했을 때, 대기열에 있는 토큰이라면 대기열 입장 페이지로 리다이렉션합니다.
+- 대기열 통과 후 제한 시간 1분 내에 내 좌석을 선택하지 않으면 만료 처리합니다.
+
+## 예약 완료 페이지
+
+선택한 좌석, 가격을 출력하고 끝냅니다.
+
+## API
+
+API는 MSW(Mock Service Worker)를 이용하여 모킹되어 있습니다. 아래에 정리된 API 명세를 참고해 기능을 구현해주세요.
+
+정확한 MSW 모킹 동작을 확인할 필요가 있다면, `src/mocks/handlers.ts`를 참고해주세요.
+
+### 티켓 목록
+
+#### GET /api/tickets
+
+- Request: (none)
+- Response 200
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "string",
+      "title": "string",
+      "description": "string",
+      "image": "string",
+      "price": 0,
+      "totalSeats": 0,
+      "availableSeats": 0,
+      "eventDate": "YYYY-MM-DD",
+      "venue": "string"
+    }
+  ]
+}
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 티켓 상세
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+#### GET /api/tickets/:id
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- Request Params: `id: string`
+- Response 200
+
+```json
+{ "success": true, "data": { /_ Ticket _/ } }
 ```
+
+- Response 404
+
+```json
+{ "success": false, "message": "티켓을 찾을 수 없습니다." }
+```
+
+### 토큰 발급
+
+#### POST /api/tickets/:id/enter
+
+- Request Params: `id: string`
+- Request Body: (none)
+- Response 200
+
+```json
+{
+  "success": true,
+  "data": {
+    "tokenId": "string",
+    "hasQueue": true,
+    "expiresAt": 1730000000000
+  }
+}
+```
+
+- Response 404
+
+```json
+{ "success": false, "message": "티켓을 찾을 수 없습니다." }
+```
+
+### 대기열 상태 조회
+
+#### GET /api/queue/:tokenId
+
+- Request Params: `tokenId: string`
+- Response 200
+
+```json
+{
+  "success": true,
+  "data": {
+    "token": {
+      "id": "string",
+      "ticketId": "string",
+      "status": "waiting|ready|expired",
+      "position": 0,
+      "totalInQueue": 0,
+      "expiresAt": 1730000000000,
+      "createdAt": 1730000000000
+    },
+    "queueStatus": {
+      "position": 0,
+      "totalInQueue": 0,
+      "progress": 0,
+      "estimatedWaitTime": 0
+    }
+  }
+}
+```
+
+- Response 404
+
+```json
+{ "success": false, "message": "유효하지 않은 토큰입니다." }
+```
+
+- Response 410
+
+```json
+{ "success": false, "message": "토큰이 만료되었습니다." }
+```
+
+### 좌석 목록
+
+#### GET /api/tickets/:id/seats
+
+- Request Params: `id: string`
+- Response 200
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "string",
+      "row": "A",
+      "number": 1,
+      "price": 0,
+      "isAvailable": true
+    }
+  ]
+}
+```
+
+### 좌석 확정 (예약 확정)
+
+#### POST /api/reservations
+
+- Request Body
+
+```json
+{ "tokenId": "string", "seatId": "string" }
+```
+
+- Response 200
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "string",
+    "ticketId": "string",
+    "seatId": "string",
+    "price": 0,
+    "status": "completed",
+    "expiresAt": 1730000000000,
+    "createdAt": 1730000000000
+  }
+}
+```
+
+- Response 404
+
+```json
+{ "success": false, "message": "유효하지 않은 토큰입니다." }
+```
+
+// or
+
+```json
+{ "success": false, "message": "좌석을 찾을 수 없습니다." }
+```
+
+- Response 410 (토큰 만료)
+
+```json
+{ "success": false, "message": "토큰이 만료되었습니다." }
+```
+
+- Response 400 (대기중/이미 예약됨)
+
+```json
+{ "success": false, "message": "아직 대기열에 있습니다." }
+```
+
+// or
+
+```json
+{ "success": false, "message": "이미 예약된 좌석입니다." }
+```
+
+### 예약 상세 (필요한 경우에만 쓰세요)
+
+#### GET /api/reservations/:id
+
+- Request Params: `id: string`
+- Response 200
+
+```json
+{
+  "success": true,
+  "data": {
+    "reservation": { /_ Reservation _/ },
+    "ticket": { /_ Ticket _/ },
+    "seat": { /_ Seat _/ }
+  }
+}
+```
+
+- Response 404
+
+```json
+{ "success": false, "message": "예약을 찾을 수 없습니다." }
+```
+
+## 구현 시 유의사항
+
+- shadcn과 같은 UI 라이브러리를 사용하거나 기본 HTML 태그만을 이용해 개발해주세요.
+- 에러 메시지, 버튼 활성화 여부 등은 실시간으로 반응하도록 해주세요.
+- 시간 절약을 위해 필요에 따라 자주 사용하던 써드파티 라이브러리를 설치하여 사용하는 것을 권장합니다.
+- TypeScript 기반의 프로젝트로, 타입 건전성을 지키는 방향으로 코드를 작성해주세요.
